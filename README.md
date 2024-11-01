@@ -1,81 +1,26 @@
-# Turborepo starter
+# web38-Froxy
 
-This is an official starter Turborepo.
+> 빠르고 간편하게 코드를 실행하세요 🐸
 
-## Using this example
+Froxy는 개구리를 뜻하는 ‘Frog’와 ‘Proxy’의 합성어로, 사용자가 직접 코드를 실행하지 않고도 결과를 빠르게 확인할 수 있는 서비스입니다. 🐸💻
 
-Run the following command:
+Gist에서 코드를 복제하고 실행 환경을 설정하는 번거로움 없이, Froxy와 함께라면 폴짝! 뛰어넘어 간편하게 코드를 실행하고 결과를 확인할 수 있습니다. 다양한 기능을 통해 코드를 테스트하고 실행 결과를 즉시 확인해 보세요!
 
-```sh
-npx create-turbo@latest
-```
+[팀 노션](https://freckle-calliandra-79a.notion.site/Team38-F-Rog-12d9038c617380509fbdf4eb928e4238)
 
-## What's inside?
+## 팀원
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm dev
-```
-
-### Remote Caching
-
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+<table>
+  <tr>
+    <td><img src="https://avatars.githubusercontent.com/u/125727432?s=64&v=4" alt="김민우" width="100"></td>
+    <td><img src="https://avatars.githubusercontent.com/u/126762281?s=64&v=4" alt="김현지" width="100"></td>
+    <td><img src="https://avatars.githubusercontent.com/u/50985929?s=64&v=4" alt="문준호" width="100"></td>
+    <td><img src="https://avatars.githubusercontent.com/u/93020785?s=64&v=4" alt="이나경" width="100"></td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/ATeals">김민우</a></td>
+    <td><a href="https://github.com/kimhji">김현지</a></td>
+    <td><a href="https://github.com/mjh000526">문준호</a></td>
+    <td><a href="https://github.com/naarang">이나경</a></td>
+  </tr>
+</table>
