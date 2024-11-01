@@ -1,5 +1,5 @@
 {
-  "name": "web38-Froxy",
+  "name": "web38-froxy",
   "private": true,
   "scripts": {
     "build": "turbo build",
@@ -7,10 +7,18 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint",
+      "prettier --list-different"
+    ]
+  },
   "devDependencies": {
-    "prettier": "^3.2.5",
-    "turbo": "^2.2.3",
-    "typescript": "5.5.4"
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "turbo": "^2.2.3"
   },
   "packageManager": "pnpm@8.15.6",
   "engines": {
