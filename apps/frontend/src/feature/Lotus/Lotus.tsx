@@ -68,12 +68,3 @@ export function LotusLogo({ className, ...props }: LotusLogoProps) {
 export function LotusProvider({ children, lotus }: { children: React.ReactNode; lotus: LotusType }) {
   return <lotusContext.Provider value={lotus}>{children}</lotusContext.Provider>;
 }
-
-export const Lotus = Object.assign(LotusProvider, {
-  Title: LotusTitle,
-  Description: LotusDescription,
-  Author: LotusAuthor,
-  Logo: LotusLogo,
-  CreateDate: LotusCreateDate,
-  Link: LotusLink
-});
