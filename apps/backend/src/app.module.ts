@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { typeORMConfig } from './config/typeorm.config';
 import { DockerModule } from './docker/docker.module';
+import { GistModule } from './gist/gist.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { DockerModule } from './docker/docker.module';
       envFilePath: '.env'
     }),
     TypeOrmModule.forRoot(typeORMConfig),
-    DockerModule
+    DockerModule,
+    GistModule
   ],
   controllers: [AppController],
   providers: [AppService]
