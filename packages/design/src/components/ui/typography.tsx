@@ -31,6 +31,8 @@ export function Heading({ asChild, size = 'md', variant = 'none', className, ...
 }
 
 const TextSize = {
+  '3xl': 'text-3xl',
+  '2xl': 'text-2xl',
   xl: 'text-xl',
   lg: 'text-lg',
   md: 'text-base',
