@@ -3,9 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { typeORMConfig } from './config/typeorm.config';
 import { DockerModule } from './docker/docker.module';
 import { GistModule } from './gist/gist.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -18,7 +20,9 @@ import { GistModule } from './gist/gist.module';
       useFactory: typeORMConfig
     }),
     DockerModule,
-    GistModule
+    GistModule,
+    UserModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService]
