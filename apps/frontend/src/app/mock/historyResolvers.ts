@@ -1,38 +1,7 @@
 import { DefaultBodyType, HttpResponse, PathParams, StrictRequest } from 'msw';
 
 // 사용자의 Lotus 목록 조회
-export const mockGetUserLotusList = ({
-  request,
-  params
-}: {
-  request: StrictRequest<DefaultBodyType>;
-  params: PathParams;
-}) => {
-  const authorization = request.headers.get('Authorization');
-
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    return new HttpResponse('Unauthorized: Invalid or missing token', {
-      status: 401,
-      headers: {
-        'Content-Type': 'text/plain'
-      }
-    });
-  }
-
-  const { id } = params;
-  const url = new URL(request.url);
-  const page = url.searchParams.get('page');
-  const size = url.searchParams.get('size');
-
-  if (!page || !size || !id) {
-    return new HttpResponse('Bad Request', {
-      status: 400,
-      headers: {
-        'Content-Type': 'text/plain'
-      }
-    });
-  }
-
+export const mockGetUserLotusList = () => {
   return HttpResponse.json({
     lotuses: [
       {
@@ -44,7 +13,7 @@ export const mockGetUserLotusList = ({
         author: {
           id: '20000000001',
           nickname: 'dev_master',
-          profile: 'https://example.com/profiles/dev_master'
+          profile: '/image/exampleImage.jpeg'
         }
       },
       {
@@ -56,7 +25,7 @@ export const mockGetUserLotusList = ({
         author: {
           id: '20000000002',
           nickname: 'react_enthusiast',
-          profile: 'https://example.com/profiles/react_enthusiast'
+          profile: '/image/exampleImage.jpegt'
         }
       }
     ],
@@ -174,7 +143,6 @@ export const mockGetHistoryList = ({
   const page = Number(url.searchParams.get('page')) || 1;
 
   if (!lotusId) {
-
     return new HttpResponse('Bad Request', {
       status: 400,
       headers: {
