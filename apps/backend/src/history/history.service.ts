@@ -20,7 +20,7 @@ export class HistoryService {
   ) {}
   async saveHistory(gitToken: string, lotusId: string, execFilename: string, inputs: string[]): Promise<any> {
     const [lotus]: Lotus[] = await this.lotusRepository.findBy({ lotusId: lotusId });
-    const file: GistApiFileListDto = await this.gistService.getCommit(lotus.gistRepositoryId, lotus.commitId);
+    const file: GistApiFileListDto = await this.gistService.getCommit(lotus.gistRepositoryId, lotus.commitId, gitToken);
     const history = await this.historyRepository.save({
       input: JSON.stringify(inputs),
       execFilename: execFilename,

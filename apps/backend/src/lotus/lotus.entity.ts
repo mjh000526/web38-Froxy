@@ -23,14 +23,20 @@ export class Lotus {
   @Column()
   title: string;
 
-  @Column({ name: 'commit_id', nullable: true })
-  commitId: string;
-
   @Column({ name: 'is_public', default: false })
   isPublic: boolean;
 
-  @Column({ name: 'gist_repository_id', nullable: true })
+  @Column({ name: 'gist_repository_id' })
   gistRepositoryId: string;
+
+  @Column({ name: 'commit_id', nullable: true })
+  commitId: string;
+
+  @Column()
+  language: string;
+
+  @Column({ name: 'version' })
+  version: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

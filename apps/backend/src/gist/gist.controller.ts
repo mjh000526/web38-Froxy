@@ -16,27 +16,32 @@ export class GistController {
 
   @Get('')
   findLast() {
-    return this.gistService.getMostRecentGistInUser();
+    const gitToken = this.configService.get<string>('GIT_TOKEN');
+    return this.gistService.getMostRecentGistInUser(gitToken);
   }
 
   @Get('/user')
   findUser() {
-    return this.gistService.getUserData();
+    const gitToken = this.configService.get<string>('GIT_TOKEN');
+    return this.gistService.getUserData(gitToken);
   }
 
   @Get('/:gist_id/comments')
   findComments(@Param('gist_id') gist_id: string) {
-    return this.gistService.getComments(gist_id);
+    const gitToken = this.configService.get<string>('GIT_TOKEN');
+    return this.gistService.getComments(gitToken, gist_id);
   }
 
   @Get(['/:id/commits', '/:id/commits/:pageIdx'])
   findCommits(@Param('id') id: string, @Param('pageIdx') pageIdx: number) {
-    return this.gistService.getCommitsForAGist(id, pageIdx ? pageIdx : 1);
+    const gitToken = this.configService.get<string>('GIT_TOKEN');
+    return this.gistService.getCommitsForAGist(id, pageIdx ? pageIdx : 1, gitToken);
   }
 
-  @Get(['/:id'])
+  //@Get(['/:id'])
   findOne(@Param('id') id: string) {
-    return this.gistService.getGistById(id);
+    const gitToken = this.configService.get<string>('GIT_TOKEN');
+    return this.gistService.getGistById(id, gitToken);
   }
 
   @Patch('/:gistId/comment/:commentId')
@@ -45,21 +50,25 @@ export class GistController {
     @Param('commentId') commentId: string,
     @Body('comment') comment: string
   ) {
-    return this.gistService.updateComment(gistId, commentId, comment);
+    const gitToken = this.configService.get<string>('GIT_TOKEN');
+    return this.gistService.updateComment(gitToken, gistId, commentId, comment);
   }
 
   @Post('/:gist_id/comment')
   postComment(@Param('gist_id') gist_id: string, @Body('comment') comment: string) {
-    return this.gistService.createComments(gist_id, comment);
+    const gitToken = this.configService.get<string>('GIT_TOKEN');
+    return this.gistService.createComments(gitToken, gist_id, comment);
   }
 
   @Delete('/:gist_id/comment/:comment_id')
   deleteComment(@Param('gist_id') gist_id: string, @Param('comment_id') comment_id: string) {
-    return this.gistService.deleteComment(gist_id, comment_id);
+    const gitToken = this.configService.get<string>('GIT_TOKEN');
+    return this.gistService.deleteComment(gitToken, gist_id, comment_id);
   }
 
   @Get(':gist_id/commit/:id')
   getCommitFile(@Param('gist_id') gist_id: string, @Param('id') commit_id: string) {
-    return this.gistService.getCommit(gist_id, commit_id);
+    const gitToken = this.configService.get<string>('GIT_TOKEN');
+    return this.gistService.getCommit(gist_id, commit_id, gitToken);
   }
 }
