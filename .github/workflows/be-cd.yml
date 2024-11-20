@@ -43,14 +43,14 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy
+       - name: Deploy
         run: |
           ssh -o StrictHostKeyChecking=no mun@211.188.48.24 "
             if [ \$(docker ps -a -q -f name=froxy-container) ]; then
               docker stop froxy-container
               docker rm froxy-container
             fi
-            docker pull $DOCKER_TAG && \
-            docker run -d --name froxy-container --net froxy-network -v /var/run/docker.sock:/var/run/docker.sock -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/froxy-server:latest
-            docker image prune -f"
+            docker pull ${{ secrets.DOCKER_USERNAME }}/froxy-server:latest && \
+            docker run --network froxy-network -d --name froxy-container -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock ${{ secrets.DOCKER_USERNAME }}/froxy-server:latest"
+            docker image prune -f
           
