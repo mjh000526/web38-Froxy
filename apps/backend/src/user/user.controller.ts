@@ -1,5 +1,7 @@
-import { Controller, Get, Query, Redirect, Res } from '@nestjs/common';
+import { Controller, Get, Param, Query, Redirect, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtSecretRequestType } from '@nestjs/jwt';
+import { UserRepository } from './user.repository';
 import { UserService } from './user.service';
 import { LotusPublicDto } from '@/lotus/dto/lotus.public.dto';
 import { LotusService } from '@/lotus/lotus.service';
