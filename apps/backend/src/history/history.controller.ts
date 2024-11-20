@@ -9,31 +9,27 @@ import { HistoryResponseListDto } from './dto/history.responseList.dto';
 import { HistoryService } from './history.service';
 import { AuthService } from '@/auth/auth.service';
 import { HISTORY_STATUS } from '@/constants/constants';
+import { UserService } from '@/user/user.service';
 
 @Controller('lotus/:lotusId/history')
 export class HistoryController {
-  constructor(
-    private historyService: HistoryService,
-    private configService: ConfigService,
-    private authService: AuthService
-  ) {}
+  constructor(private historyService: HistoryService, private authServer: AuthService) {}
 
   @Post()
   @HttpCode(200)
   @ApiOperation({ summary: '코드 실행 & history 추가' })
   @ApiBody({ type: HistoryExecRequestDto })
   @ApiResponse({ status: 200, description: '실행 성공', type: HistoryExecResponseDto })
-  execCode(
-    @Req() req: Request,
+  async execCode(
+    @Req() request: Request,
     @Param('lotusId') lotusId: string,
     @Body() historyExecRequestDto: HistoryExecRequestDto
   ): Promise<any> {
-    const gitToken = req.headers['Authorization'] as string;
-
+    const gitToken = await this.authServer.getUserGitToken(this.authServer.getIdFromRequest(request));
     // const execFileName = 'FunctionDivide.js';
     // const input = ['1 1 1 1', '1 1 1 1', '1 1 1 1', '1 1 1 1'];
     const { input, execFileName } = historyExecRequestDto;
-    return this.historyService.saveHistory(gitToken, lotusId, execFileName, input);
+    return await this.historyService.saveHistory(gitToken, lotusId, execFileName, input);
   }
 
   @Get()

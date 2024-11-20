@@ -1,9 +1,24 @@
-import { GistApiFileListDto } from '@/gist/dto/gistApiFileList.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsUrl } from 'class-validator';
 import { User } from '@/user/user.entity';
 
 export class SimpleUserResponseDto {
+  @IsString()
+  @ApiProperty({
+    example: '121162781'
+  })
   id: string;
+
+  @IsString()
+  @ApiProperty({
+    example: 'NickName7483'
+  })
   nickname: string;
+
+  @IsUrl()
+  @ApiProperty({
+    example: 'https://avatars.githubusercontent.com/u/121162781?v=4'
+  })
   profile: string;
 
   static ofUserDto(userData: User) {

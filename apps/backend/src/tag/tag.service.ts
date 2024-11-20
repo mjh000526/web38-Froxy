@@ -1,6 +1,4 @@
-import { HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Like } from 'typeorm';
-import { TagSearchResponseDTO } from './dto/tag.searchResponse.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Tag } from './tag.entity';
 import { TagRepository } from './tag.repository';
 
@@ -10,10 +8,10 @@ export class TagService {
 
   async createTag(tagName: string): Promise<any> {
     try {
-      // const isExistTag = await this.tagRepository.findOne({where: {tagName}});
-      // if(isExistTag){
-      //   throw new HttpException('이미 존재하는 태그입니다.',HttpStatus.BAD_REQUEST);
-      // }
+      const isExistTag = await this.tagRepository.findOne({ where: { tagName } });
+      if (isExistTag) {
+        throw new HttpException('이미 존재하는 태그입니다.', HttpStatus.BAD_REQUEST);
+      }
       await this.tagRepository.save({
         tagName: tagName
       });
@@ -23,9 +21,18 @@ export class TagService {
     }
   }
 
-  async serachTag(tagName: string): Promise<any> {
-    const tags = await this.tagRepository.searchTagName(tagName);
+  async getTag(tagName: string): Promise<Tag> {
+    let tag = await this.tagRepository.findOne({ where: { tagName } });
+    if (!tag) {
+      await this.createTag(tagName);
+      tag = await this.tagRepository.findOne({ where: { tagName } });
+    }
+    return tag;
+  }
 
-    return { tags: tags.map((tag) => TagSearchResponseDTO.of(tag)) };
+  async searchTag(tagName: string): Promise<string[]> {
+    const tags = await this.tagRepository.searchTagName(tagName);
+    const tagIds = tags.map((tag) => tag.tagId);
+    return tagIds;
   }
 }

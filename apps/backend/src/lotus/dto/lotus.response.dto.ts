@@ -1,17 +1,54 @@
-import { SimpleTagResponseDto } from './simple.tag.response.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsBoolean, IsDate, IsString, ValidateNested } from 'class-validator';
 import { SimpleUserResponseDto } from './simple.user.response.dto';
 import { Lotus } from '@/lotus/lotus.entity';
 
 export class LotusResponseDto {
+  @IsString()
+  @ApiProperty({
+    example: '25'
+  })
   id: string;
-  author: SimpleUserResponseDto;
+
+  @IsString()
+  @ApiProperty({
+    example: '로투스 제목1'
+  })
   title: string;
+
+  @IsBoolean()
+  @ApiProperty({
+    example: true
+  })
   isPublic: boolean;
+
+  @IsString()
+  @ApiProperty({
+    example: 'JavaScript'
+  })
   language: string;
+
+  @IsDate()
+  @ApiProperty({
+    example: '로투스 생성 일시'
+  })
   date: Date;
-  tag: SimpleTagResponseDto[];
+
+  @ValidateNested()
+  @Type(() => SimpleUserResponseDto)
+  @ApiProperty({
+    type: SimpleUserResponseDto
+  })
+  author: SimpleUserResponseDto;
+
+  @ApiProperty({
+    example: ['Web', 'Be']
+  })
+  tags: string[];
 
   static ofSpreadData(user: SimpleUserResponseDto, lotus: Lotus): LotusResponseDto {
+    const tags = lotus.tags.map((tag) => tag.tagName);
     return {
       id: lotus.lotusId,
       author: user,
@@ -19,12 +56,13 @@ export class LotusResponseDto {
       language: lotus.language,
       isPublic: lotus.isPublic,
       date: lotus.createdAt,
-      tag: lotus.category
+      tags
     };
   }
 
   static ofLotus(lotus: Lotus): LotusResponseDto {
     const simpleUser = SimpleUserResponseDto.ofUserDto(lotus.user);
+    const tags = lotus.tags.map((tag) => tag.tagName);
     return {
       id: lotus.lotusId,
       author: simpleUser,
@@ -32,7 +70,7 @@ export class LotusResponseDto {
       language: lotus.language,
       isPublic: lotus.isPublic,
       date: lotus.createdAt,
-      tag: lotus.category
+      tags
     };
   }
 }
