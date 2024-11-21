@@ -29,6 +29,9 @@ export class LotusService {
     gitToken: string,
     lotusInputData: LotusCreateRequestDto
   ): Promise<LotusResponseDto> {
+    if (!lotusInputData.title) {
+      throw new HttpException("title can't use empty", HttpStatus.BAD_REQUEST);
+    }
     if (!lotusInputData.language) {
       lotusInputData.language = 'JavaScript';
     }
@@ -36,8 +39,8 @@ export class LotusService {
       lotusInputData.version = 'NodeJs:v22.11.0';
     }
     const commits = await this.gistService.getCommitsForAGist(lotusInputData.gistUuid, 1, gitToken);
-    if (commits.length < 1) {
-      throw new HttpException('this gist repository has no commit.', HttpStatus.NOT_FOUND);
+    if (!commits || commits.length < 1) {
+      throw new HttpException('gistId is not exist', HttpStatus.NOT_FOUND);
     }
     const currentCommitId = commits[0].commitId;
 
@@ -70,6 +73,8 @@ export class LotusService {
     lotusUpdateRequestDto: LotusUpdateRequestDto,
     userIdWhoWantToUpdate: string
   ): Promise<LotusResponseDto> {
+    const foundUser = await this.userService.findOneByUserId(userIdWhoWantToUpdate);
+    if (!foundUser) throw new HttpException('user data not found', HttpStatus.NOT_FOUND);
     const updateLotus = await this.lotusRepository
       .findOne({
         where: { lotusId },
@@ -78,19 +83,23 @@ export class LotusService {
       .catch((error) => {
         throw new HttpException('lotus findOne query failed', HttpStatus.INTERNAL_SERVER_ERROR);
       });
+    if (!updateLotus) throw new HttpException('lotusId is not exist', HttpStatus.NOT_FOUND);
     if (updateLotus.user.userId !== userIdWhoWantToUpdate) {
-      throw new HttpException('this is not allowed req', HttpStatus.FORBIDDEN);
+      throw new HttpException("can't modify this lotus", HttpStatus.FORBIDDEN);
     }
-    if (!updateLotus) throw new HttpException('invalid lotusId', HttpStatus.NOT_FOUND);
-    if (lotusUpdateRequestDto.tags) {
-      const tags = await Promise.all(lotusUpdateRequestDto.tags.map((tag) => this.tagService.getTag(tag)));
-      updateLotus.tags = tags;
-    }
-    if (lotusUpdateRequestDto.title) {
-      updateLotus.title = lotusUpdateRequestDto.title;
-    }
+
     if (lotusUpdateRequestDto.isPublic !== undefined) {
       updateLotus.isPublic = lotusUpdateRequestDto.isPublic;
+    } else {
+      if (!lotusUpdateRequestDto.title) {
+        throw new HttpException("title can't use empty", HttpStatus.BAD_REQUEST);
+      } else {
+        updateLotus.title = lotusUpdateRequestDto.title;
+      }
+      if (lotusUpdateRequestDto.tags) {
+        const tags = await Promise.all(lotusUpdateRequestDto.tags.map((tag) => this.tagService.getTag(tag)));
+        updateLotus.tags = tags;
+      }
     }
     const result = await this.lotusRepository.save(updateLotus).catch((error) => {
       throw new HttpException('lotus save query failed', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -100,6 +109,8 @@ export class LotusService {
   }
 
   async deleteLotus(lotusId: string, userIdWhoWantToDelete: string): Promise<MessageDto> {
+    const foundUser = await this.userService.findOneByUserId(userIdWhoWantToDelete);
+    if (!foundUser) throw new HttpException('user data not found', HttpStatus.NOT_FOUND);
     const deleteLotus = await this.lotusRepository
       .findOne({
         where: { lotusId },
@@ -108,14 +119,15 @@ export class LotusService {
       .catch((error) => {
         throw new HttpException('lotus findOne query failed', HttpStatus.INTERNAL_SERVER_ERROR);
       });
+    if (!deleteLotus) throw new HttpException('lotusId is not exist', HttpStatus.NOT_FOUND);
     if (deleteLotus.user.userId !== userIdWhoWantToDelete) {
-      throw new HttpException('this is not allowed req', HttpStatus.FORBIDDEN);
+      throw new HttpException("can't remove this lotus", HttpStatus.FORBIDDEN);
     }
 
     const result = await this.lotusRepository.delete({ lotusId }).catch((error) => {
       throw new HttpException('lotus delete query failed', HttpStatus.INTERNAL_SERVER_ERROR);
     });
-    if (!result.affected) throw new HttpException('no match data', HttpStatus.NOT_FOUND);
+    if (!result.affected) throw new HttpException('delete fail', HttpStatus.NOT_FOUND);
 
     return new MessageDto('ok');
   }
@@ -129,8 +141,11 @@ export class LotusService {
       .catch((error) => {
         throw new HttpException('lotus findOne query failed', HttpStatus.INTERNAL_SERVER_ERROR);
       });
+    if (!lotusData) {
+      throw new HttpException('lotusId is not exist', HttpStatus.NOT_FOUND);
+    }
     if (!lotusData.isPublic && lotusData.user.userId !== userId) {
-      throw new HttpException("this user can't access that lotus", HttpStatus.NOT_ACCEPTABLE);
+      throw new HttpException("can't view this lotus", HttpStatus.FORBIDDEN);
     }
 
     const commitFiles = await this.gistService.getCommit(lotusData.gistRepositoryId, lotusData.commitId, gitToken);
@@ -152,13 +167,25 @@ export class LotusService {
     });
 
     const totalNum = lotusData.length;
+    const maxPage = Math.ceil(totalNum / size);
+    if (page > maxPage && maxPage !== 0) {
+      throw new HttpException('page must be lower than max page', HttpStatus.NOT_FOUND);
+    }
+    if (page <= 0) {
+      throw new HttpException('page must be higher than 0', HttpStatus.NOT_FOUND);
+    }
     const firstIdx = size * (page - 1);
     const returnLotusData = lotusData.splice(firstIdx, size);
 
-    return LotusPublicDto.ofLotusList(returnLotusData, page, Math.ceil(totalNum / size));
+    return LotusPublicDto.ofLotusList(returnLotusData, page, maxPage);
   }
 
   async getUserLotus(userId: string, page: number, size: number) {
+    const user = this.userService.findOneByUserId(userId);
+    if (!user) {
+      throw new HttpException('user data is not found', HttpStatus.NOT_FOUND);
+    }
+
     const lotusData = await this.lotusRepository
       .find({
         where: { user: { userId } },
@@ -168,10 +195,17 @@ export class LotusService {
         throw new HttpException('lotus find query failed', HttpStatus.INTERNAL_SERVER_ERROR);
       });
     const totalNum = lotusData.length;
+    const maxPage = Math.ceil(totalNum / size);
+    if (page > maxPage && maxPage !== 0) {
+      throw new HttpException('page must be lower than max page', HttpStatus.NOT_FOUND);
+    }
+    if (page <= 0) {
+      throw new HttpException('page must be higher than 0', HttpStatus.NOT_FOUND);
+    }
     const firstIdx = size * (page - 1);
     const returnLotusData = lotusData.splice(firstIdx, size);
 
-    return LotusPublicDto.ofLotusList(returnLotusData, page, Math.ceil(totalNum / size));
+    return LotusPublicDto.ofLotusList(returnLotusData, page, maxPage);
   }
 
   async checkAlreadyExist(gistUuid: string, commitId: string) {
