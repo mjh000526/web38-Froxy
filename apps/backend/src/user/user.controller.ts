@@ -1,12 +1,34 @@
-import { Controller, Get, HttpCode, HttpException, HttpStatus, Post, Query, Redirect, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  DefaultValuePipe,
+  Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  Redirect,
+  Req,
+  Res
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { Request } from 'express';
+import { ApiBody, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { Request, Response } from 'express';
+import { FileDto } from './dto/file.dto';
+import { FileResponseDto } from './dto/file.response.dto';
 import { TokenDTO } from './dto/token.dto';
 import { UserCreateDto } from './dto/user.create.dto';
+import { UserPatchDTO } from './dto/user.patch.dto';
 import { UserService } from './user.service';
 import { AuthService } from '@/auth/auth.service';
+import { ResponseAllGistsDto } from '@/gist/dto/response.allGists.dto';
+import { GistService } from '@/gist/gist.service';
 import { LotusPublicDto } from '@/lotus/dto/lotus.public.dto';
+import { SimpleUserResponseDto } from '@/lotus/dto/simple.user.response.dto';
 import { LotusService } from '@/lotus/lotus.service';
 
 @Controller('/user')
@@ -15,6 +37,7 @@ export class UserController {
     private readonly userService: UserService,
     private readonly lotusService: LotusService,
     private readonly authService: AuthService,
+    private readonly gistService: GistService,
     private configService: ConfigService
   ) {}
   private OAUTH_CLIENT_ID = this.configService.get<string>('OAUTH_CLIENT_ID');
@@ -48,7 +71,7 @@ export class UserController {
     return TokenDTO.of(await this.userService.makeTestUser(testUser));
   }
 
-  @Post('login')
+  @Get('login')
   @Redirect()
   getGithubLoginPage() {
     const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${this.OAUTH_CLIENT_ID}&redirect_uri=${this.OAUTH_LOGIN_CALLBACK_URL}&scope=gist`;
@@ -56,7 +79,8 @@ export class UserController {
   }
 
   @Get('login/callback')
-  async githubCallback(@Query('code') code: string): Promise<TokenDTO> {
+  async githubCallback(@Query('code') code: string, @Res() res: Response): Promise<void> {
+    const clientUrl = this.configService.get<string>('CLIENT_REDIRECT_URL');
     try {
       const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
         method: 'POST',
@@ -72,10 +96,9 @@ export class UserController {
       });
       const tokenData = await tokenResponse.json();
       const token = await this.userService.loginUser(tokenData);
-      return TokenDTO.of(token);
+      res.redirect(`${clientUrl}/login/success?token=${token}`);
     } catch (error) {
-      console.error('GitHub OAuth 오류:', error);
-      throw new HttpException('GitHub 인증에 실패했습니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+      res.redirect(`${clientUrl}/login/error`);
     }
   }
 
@@ -87,10 +110,53 @@ export class UserController {
   @ApiQuery({ name: 'size', type: String, example: '10', required: false })
   getUserLotus(
     @Req() request: Request,
-    @Query('page') page: number,
-    @Query('size') size: number
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('size', new DefaultValuePipe(10), ParseIntPipe) size: number
   ): Promise<LotusPublicDto> {
     const userId = this.authService.getIdFromRequest(request);
     return this.lotusService.getUserLotus(userId, page, size);
+  }
+
+  @Get('')
+  @HttpCode(200)
+  @ApiOperation({ summary: '사용자 정보 가져오기' })
+  @ApiResponse({ status: 200, description: '실행 성공', type: SimpleUserResponseDto })
+  getUserInfo(@Req() request: Request): Promise<SimpleUserResponseDto> {
+    const userId = this.authService.getIdFromRequest(request);
+    return this.userService.getSimpleUserInfoByUserId(userId);
+  }
+
+  @Patch('')
+  @HttpCode(200)
+  @ApiOperation({ summary: '사용자 정보 수정하기' })
+  @ApiBody({ type: UserPatchDTO })
+  @ApiResponse({ status: 200, description: '실행 성공', type: UserPatchDTO })
+  PatchUserInfo(@Req() request: Request, @Body() userData: UserPatchDTO): Promise<UserPatchDTO> {
+    const userId = this.authService.getIdFromRequest(request);
+    return this.userService.patchUserDataByUserId(userId, userData);
+  }
+
+  @Get('gist')
+  @HttpCode(200)
+  @ApiOperation({ summary: '사용자의 gist 목록 가져오기' })
+  @ApiResponse({ status: 200, description: '실행 성공', type: ResponseAllGistsDto })
+  async getGistPage(
+    @Req() request: Request,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('size', new DefaultValuePipe(10), ParseIntPipe) size: number
+  ): Promise<ResponseAllGistsDto> {
+    const gitToken = await this.authService.getUserGitToken(this.authService.getIdFromRequest(request));
+    return await this.gistService.getGistList(gitToken, page, size);
+  }
+
+  @Get('gist/:gistId')
+  @HttpCode(200)
+  @ApiOperation({ summary: '사용자의 특정 gist의 내부 파일 데이터 가져오기' })
+  @ApiResponse({ status: 200, description: '실행 성공', type: FileResponseDto })
+  async getCommitFile(@Req() request: Request, @Param('gistId') gistId: string) {
+    const gitToken = await this.authService.getUserGitToken(this.authService.getIdFromRequest(request));
+    const Files = await this.gistService.getGistById(gistId, gitToken);
+    const result = Files.files.map((file) => FileDto.ofGistApiFile(file));
+    return FileResponseDto.ofFiles(result);
   }
 }
