@@ -14,3 +14,5 @@ export function SuspenseLotusPagination({ page = 1 }: { page?: number }) {
     />
   );
 }
+
+SuspenseLotusPagination.Skeleton = Pagination.Skeleton;
