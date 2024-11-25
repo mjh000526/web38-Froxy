@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Navigate, createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 import { userQueryOptions } from '@/feature/user/query';
+import { LoadingPage } from '@/page/-LoadingPage';
 import { useLocalStorage } from '@/shared';
 import { useToast } from '@/shared/toast';
 
@@ -29,7 +30,7 @@ function RouteComponent() {
 
   if (error) throw new Error('유저 정보 조회에 실패했습니다.');
 
-  if (isLoading) return <div>...Loading</div>;
+  if (isLoading) return <LoadingPage />;
 
   return <SuccessComponent nickname={user?.nickname ?? ''} />;
 }
