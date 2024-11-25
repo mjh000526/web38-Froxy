@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Navigate, createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
-import { useUserQuery } from '@/feature/user/query';
+import { userQueryOptions } from '@/feature/user/query';
 import { useLocalStorage } from '@/shared';
 import { useToast } from '@/shared/toast';
 
@@ -20,7 +21,7 @@ function RouteComponent() {
 
   const { token } = Route.useSearch();
 
-  const { data: user, error, isLoading } = useUserQuery();
+  const { data: user, error, isLoading } = useQuery(userQueryOptions.info());
 
   useEffect(() => {
     set(token);
@@ -34,7 +35,7 @@ function RouteComponent() {
 }
 
 function SuccessComponent({ nickname }: { nickname: string }) {
-  const { toast } = useToast();
+  const { toast } = useToast({ isCloseOnUnmount: false });
 
   useEffect(() => {
     toast({ description: `${nickname}님 환영합니다!`, duration: 2000 });
@@ -44,7 +45,7 @@ function SuccessComponent({ nickname }: { nickname: string }) {
 }
 
 function ErrorComponent() {
-  const { toast } = useToast();
+  const { toast } = useToast({ isCloseOnUnmount: false });
 
   useEffect(() => {
     toast({ variant: 'error', description: '로그인에 실패했습니다.', duration: 2000 });
