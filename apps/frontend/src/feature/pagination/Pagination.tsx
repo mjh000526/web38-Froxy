@@ -8,8 +8,8 @@ import {
   PaginationPrevious
 } from '@froxy/design/components';
 import { Skeleton } from '@froxy/design/components';
+import { usePagination } from '@/feature/pagination/usePagination';
 import { range } from '@/shared/common';
-import { usePagination } from '@/shared/pagination/usePagination';
 
 interface PaginationProps {
   totalPages?: number;
