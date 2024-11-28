@@ -18,6 +18,7 @@ export class UserService {
   async findOne(gitId: number): Promise<User | null> {
     return this.userRepository.findOneBy({ gitId });
   }
+
   async findOneByUserId(userId: string): Promise<User | null> {
     return this.userRepository.findOneBy({ userId });
   }
@@ -64,7 +65,6 @@ export class UserService {
         Authorization: `Bearer ${accessToken}`
       }
     });
-
     const inputUser = await userResponse.json();
     let user = await this.findOne(inputUser.id);
     if (!user) {
@@ -73,7 +73,8 @@ export class UserService {
     } else {
       await this.userRepository.update({ gitId: inputUser.id }, { gitToken: accessToken });
     }
-    return this.authService.createJwt(user.userId);
+    const token = this.authService.createJwt(user.userId);
+    return token;
   }
 
   async makeTestUser(user: User) {
