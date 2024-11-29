@@ -1,9 +1,9 @@
-name: froxy Continuous Delivery
+name: froxy BE Continuous Delivery
 
 on:
   push:
     branches:
-      - release  # release 브랜치에 푸시될 때 실행
+      - deploy
 
 jobs:
   be-cd:
