@@ -3,7 +3,7 @@ name: froxy BE Continuous Delivery
 on:
   push:
     branches:
-      - deploy
+      - main
 
 jobs:
   be-cd:
@@ -45,7 +45,7 @@ jobs:
 
       - name: Deploy
         run: |
-          ssh -o StrictHostKeyChecking=no mun@211.188.48.24 "
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP}} "
             if [ \$(docker ps -a -q -f name=froxy-container) ]; then
               docker stop froxy-container
               docker rm froxy-container
