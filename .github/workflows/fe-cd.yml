@@ -3,7 +3,7 @@ name: Froxy-FE Continuous Integration
 on:
   push:
     branches:
-      - deploy
+      - main
 jobs:
   fe-cd:
     runs-on: ubuntu-20.04
@@ -46,4 +46,4 @@ jobs:
           sudo apt-get update && sudo apt-get install -y awscli
 
           # 빌드된 정적 파일을 오브젝트 스토리지로 업로드
-          aws s3 sync ./apps/frontend/dist s3://froxy-fe --endpoint-url=https://kr.object.ncloudstorage.com --acl public-read
+          aws s3 sync ./apps/frontend/dist s3://froxy-ui --endpoint-url=https://kr.object.ncloudstorage.com --acl public-read
